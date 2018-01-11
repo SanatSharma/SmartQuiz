@@ -68,7 +68,10 @@ function main() {
 			if (typedMessage.value.length) {
 				typedMessage.value = typedMessage.value.substring(0, 512);
 				addMessage(id, typedMessage.value, false);
-				ws.send(typedMessage.value);
+				ws.send(JSON.stringify({
+					session: "00001",
+					data: typedMessage.value
+				}));
 			}
 			typedMessage.value = "";
 			return false;
@@ -93,6 +96,13 @@ function main() {
 
 	console.log("Hostname: " + window.location.hostname + " Port: " + window.location.port);
 	ws = new WebSocket("ws://localhost:3000");
+
+	ws.onopen = function(e) {
+		ws.send(JSON.stringify({
+			session: "00001",
+			type: "teacher"
+		}));
+	}
 
 	ws.onmessage = function(e) {
 		console.log("Received message!");
