@@ -6,12 +6,17 @@ const WebSocket = require('ws');
   2) If teacher goes down, then all the centers associated with the teacher are also killed
   3) If the program crashes, then we'll need some sort of way to start it again
 
+  teacher: {id: [ws, session]}
+  center: {id: [ws, session]}
+  teacher_conn = {session: [id, id .....]}
+
 */
 
 const wss = new WebSocket.Server({ port: 3000 });
 var teacher_conn = {};
 var teachers = {};
 var centers = {};
+var idCounter = 0;
 
 wss.on('connection', function connection(ws, req) {
   const ip = req.connection.remoteAddress;
@@ -23,27 +28,42 @@ wss.on('connection', function connection(ws, req) {
   ws.on("close", function(){
     console.log("removing client " + ws);
 
-    if (ws in teachers){
+    if (ws.id in teachers){
     //  console.log("Teacher died, kill all center connections");
       // if teacher connection dies then kill all of its corresponding student connections also
     //  teacher_conn[teachers[ws]].forEach(function each(client){
     //    client.close();
     //  });
       console.log("Teacher disconnection");
-
-      // delete enrty from teachers dict
-      delete teachers[ws];
-      console.log("Teachers: " + JSON.stringify(teachers));
+      if( ws.closeSession == true){
+        // you have removed other connections. Delete session
+        console.log("here");
+        var session = teachers[ws.id][1];
+        delete teacher_conn[session];
+      }
+      // delete entry from teachers dict
+      delete teachers[ws.id];
+      console.log("Teachers: " + teachers);
     }
     else{
       console.log("Center disconnection");
-      var a = teacher_conn[centers[ws]];
-      var index = a.indexOf(ws);
-      a.splice(index, 1);
-      console.log(teacher_conn);
+      if (ws.id in centers){
+        var session = centers[ws.id][1];
+        var a = teacher_conn[session];
+        var index = a.indexOf(ws.id);
+        if (index == -1){
+          throw "Center to delete not showing up in connections";
+        }
+        a.splice(index, 1);
+        delete centers[ws.id];
+        console.log("Centers: " + centers);
+      }
+      else{
+        // came here because no session was found to connect into
+        // Do nothing
+      }
     }
-
-    console.log(teacher_conn);
+    console.log("Connections: " + JSON.stringify(teacher_conn));
     wss.clients.delete(ws);
   
   });
@@ -54,7 +74,10 @@ wss.on('connection', function connection(ws, req) {
       // passed data is JSON
       var obj = JSON.parse(data);
       if ('type' in obj){
+        ws.id = idCounter++;
         if (obj.type == "teacher"){
+          ws.closeSession = false;
+          teachers[ws.id]  = [ws, obj.session];
           console.log("Teacher Connection")
           if (obj.session in teacher_conn){
             // if corresponding session already exists, just add teacher to the teacher list
@@ -63,28 +86,25 @@ wss.on('connection', function connection(ws, req) {
               throw "LOGIC ERROR";
             }
             console.log("Session already exists");
-            teachers[ws] = obj.session;
-            
           }
           else{
             // create the session and add teacher to teacher list
             console.log("New Session");
-            teachers[ws] = obj.session;
             teacher_conn[obj.session] = [];
           }
-          console.log("Teachers: " + JSON.stringify(teachers));
-          console.log(teacher_conn)
+          console.log("Teachers: " + teachers);
+          console.log("Connections: " + JSON.stringify(teacher_conn));
         }
         else if (obj.type == "center"){
           console.log("Center Connection");
-          if (ws in teachers)
+          if (ws.id in teachers)
             throw "LOGIC ERROR: Center should not be in teachers dict";
           // check if the session the center is trying to log into exists
           if (obj.session in teacher_conn){
-            teacher_conn[obj.session].push(ws);
-            console.log(teacher_conn);
-            centers[ws] = obj.session;
-            console.log(centers);
+            teacher_conn[obj.session].push(ws.id);
+            console.log("Connections: " + JSON.stringify(teacher_conn));
+            centers[ws.id] = [ws, obj.session];
+            console.log("Centers: " + centers);
           }
           else{
             console.log("No corresponding session");
@@ -98,13 +118,15 @@ wss.on('connection', function connection(ws, req) {
         var d = obj.data;
         if (obj.session in teacher_conn){
           if (obj.data == "close"){
+            ws.closeSession = true;
+            console.log("Close Session");
             teacher_conn[obj.session].forEach(function each(client){
-              client.close()
+              centers[client][0].close()
             });
           }
           else{
             teacher_conn[obj.session].forEach(function each(client){
-              client.send(d)
+              centers[client][0].send(d)
             });
           }
         }
