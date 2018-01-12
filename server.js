@@ -6,13 +6,12 @@ const WebSocket = require('ws');
   2) If teacher goes down, then all the centers associated with the teacher are also killed
   3) If the program crashes, then we'll need some sort of way to start it again
 
-
 */
 
 const wss = new WebSocket.Server({ port: 3000 });
-console.log("Here");
 var teacher_conn = {};
-var teachers = {}
+var teachers = {};
+var centers = {};
 
 wss.on('connection', function connection(ws, req) {
   const ip = req.connection.remoteAddress;
@@ -25,17 +24,26 @@ wss.on('connection', function connection(ws, req) {
     console.log("removing client " + ws);
 
     if (ws in teachers){
-      console.log("Teacher died, kill all center connections");
+    //  console.log("Teacher died, kill all center connections");
       // if teacher connection dies then kill all of its corresponding student connections also
-      teacher_conn[teachers[ws]].forEach(function each(client){
-        client.close();
-      });
+    //  teacher_conn[teachers[ws]].forEach(function each(client){
+    //    client.close();
+    //  });
+      console.log("Teacher disconnection");
 
       // delete enrty from teachers dict
       delete teachers[ws];
       console.log("Teachers: " + JSON.stringify(teachers));
     }
+    else{
+      console.log("Center disconnection");
+      var a = teacher_conn[centers[ws]];
+      var index = a.indexOf(ws);
+      a.splice(index, 1);
+      console.log(teacher_conn);
+    }
 
+    console.log(teacher_conn);
     wss.clients.delete(ws);
   
   });
@@ -48,17 +56,35 @@ wss.on('connection', function connection(ws, req) {
       if ('type' in obj){
         if (obj.type == "teacher"){
           console.log("Teacher Connection")
-          teachers[ws] = obj.session;
-          teacher_conn[obj.session] = [];
+          if (obj.session in teacher_conn){
+            // if corresponding session already exists, just add teacher to the teacher list
+            if (ws in teachers){
+              // should never reach here. This means that teacher already exists and is trying to make a connection again
+              throw "LOGIC ERROR";
+            }
+            console.log("Session already exists");
+            teachers[ws] = obj.session;
+            
+          }
+          else{
+            // create the session and add teacher to teacher list
+            console.log("New Session");
+            teachers[ws] = obj.session;
+            teacher_conn[obj.session] = [];
+          }
+          console.log("Teachers: " + JSON.stringify(teachers));
           console.log(teacher_conn)
         }
         else if (obj.type == "center"){
           console.log("Center Connection");
-
-          // check if the session the center is trying to log
+          if (ws in teachers)
+            throw "LOGIC ERROR: Center should not be in teachers dict";
+          // check if the session the center is trying to log into exists
           if (obj.session in teacher_conn){
             teacher_conn[obj.session].push(ws);
             console.log(teacher_conn);
+            centers[ws] = obj.session;
+            console.log(centers);
           }
           else{
             console.log("No corresponding session");
@@ -71,9 +97,16 @@ wss.on('connection', function connection(ws, req) {
         // Broadcast message to all the centers
         var d = obj.data;
         if (obj.session in teacher_conn){
-          teacher_conn[obj.session].forEach(function each(client){
-            client.send(d)
-          });
+          if (obj.data == "close"){
+            teacher_conn[obj.session].forEach(function each(client){
+              client.close()
+            });
+          }
+          else{
+            teacher_conn[obj.session].forEach(function each(client){
+              client.send(d)
+            });
+          }
         }
         else{
           console.log("No corresponding session");
