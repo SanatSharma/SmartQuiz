@@ -27,7 +27,7 @@ int sql_connect() {
 		return 1;
 	}
 	catch (sql::SQLException &e) {
-		std::cout << "# ERR: SQLException";
+		std::cout << "# ERR: SQLException " << &e;
 		return 0;
 	}
 }
@@ -47,7 +47,7 @@ int sql_send_data(const char* rfid, int remoteId, int qid, const char* studentAn
 		return 1;
 	}
 	catch (sql::SQLException &e) {
-		std::cout << "# ERR: SQLException";
+		std::cout << "# ERR: SQLException" << &e ;
 		return 0;
 	}
 }
@@ -59,6 +59,7 @@ int sql_close() {
 		return 1;
 	}
 	catch (sql::SQLException &e) {
+		std::cout << "# ERR: SQLException" << &e;
 		return 0;
 	}
 }
