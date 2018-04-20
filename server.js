@@ -3,7 +3,7 @@ const WebSocket = require('ws');
 /*
   Current Implementation Issues:
   1) Center can log in only after teacher has logged in
-  2) If the program crashes, then we'll need some sort of way to start it again
+  2) If the program crashes, then we'll need some sort of way to start it again - server should never be crashing
 
   teacher: {id: [ws, session]}
   center: {id: [ws, session]}
