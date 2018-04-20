@@ -52,7 +52,7 @@ int quiz_start() {
 		printf("Fail to start a quiz.\n");
 		return 0;
 	}
-
+	return 1;
 }
 
 int quiz_poll() {
@@ -108,6 +108,7 @@ int quiz_stop() {
 		printf("Error in closing quiz!!\n");
 		return 0;
 	}
+	return 1;
 }
 
 int session_end(){
