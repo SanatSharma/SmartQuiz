@@ -14,6 +14,8 @@ sql::Driver *driver;
 sql::Connection *con;
 sql::PreparedStatement *prep_stmt;
 sql::PreparedStatement *prep_stmt2;
+sql::PreparedStatement *attendance_statement;
+
 
 int sql_connect() {
 	try {
@@ -27,7 +29,24 @@ int sql_connect() {
 		return 1;
 	}
 	catch (sql::SQLException &e) {
-		std::cout << "# ERR: SQLException " << &e;
+		std::cout << "# ERR: SQLException: Database Connection not successful";
+		return 0;
+	}
+}
+
+int attendance_init() {
+	try {
+		// This will all change when connecting to the actual database
+		driver = get_driver_instance();
+		con = driver->connect("tcp://127.0.0.1:", "root", "");
+		con->setSchema("test");
+		::attendance_statement = con->prepareStatement("INSERT INTO students(remoteId) VALUES (?)");
+
+		std::cout << "Attendance database connected\n";
+		return 1;
+	}
+	catch (sql::SQLException &e) {
+		std::cout << "# ERR: SQLException: Attendance Database Connection not successful";
 		return 0;
 	}
 }
@@ -47,7 +66,7 @@ int sql_send_data(const char* rfid, int remoteId, int qid, const char* studentAn
 		return 1;
 	}
 	catch (sql::SQLException &e) {
-		std::cout << "# ERR: SQLException" << &e ;
+		std::cout << "# ERR: SQLException: Sending data to database failed";
 		return 0;
 	}
 }
@@ -59,7 +78,7 @@ int sql_close() {
 		return 1;
 	}
 	catch (sql::SQLException &e) {
-		std::cout << "# ERR: SQLException" << &e;
+		std::cout << "SQLException: Unable to close database connection";
 		return 0;
 	}
 }
