@@ -59,19 +59,36 @@ textarea {
 <script>
 var messagesPanel, typedMessage, first = true, ws, id;
 var messages = [];
+const ATTENDANCE = "attendance";
+const STOPATTENDANCE = "stopattendance";
 function main() {
 	messagesPanel = document.getElementById("messagesPanel");
 	typedMessage = document.getElementById("typedMessage");
-
+	
 	typedMessage.onkeydown = function(e) {
 		if (e.keyCode === 13 && !e.shiftKey) {
 			if (typedMessage.value.length) {
 				typedMessage.value = typedMessage.value.substring(0, 512);
 				addMessage(id, typedMessage.value, false);
-				ws.send(JSON.stringify({
+				if (typedMessage.value == ATTENDANCE){
+					ws.send(JSON.stringify({
 					session: "00001",
-					data: typedMessage.value
-				}));
+					type: typedMessage.value
+					}));
+				}
+				else if (typedMessage.value == STOPATTENDANCE){
+					ws.send(JSON.stringify({
+					session: "00001",
+					type: typedMessage.value
+					}));
+				}
+				else{
+
+					ws.send(JSON.stringify({
+						session: "00001",
+						data: typedMessage.value
+					}));
+				}
 			}
 			typedMessage.value = "";
 			return false;
