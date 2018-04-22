@@ -17,6 +17,10 @@ var teachers = {};
 var centers = {};
 var idCounter = 0;
 
+const CENTER = "center";
+const TEACHER = "teacher";
+const ATTENDANCE = "attendance";
+
 wss.on('connection', function connection(ws, req) {
   const ip = req.connection.remoteAddress;
   wss.clients.add(ws)
@@ -74,7 +78,7 @@ wss.on('connection', function connection(ws, req) {
       var obj = JSON.parse(data);
       if ('type' in obj){
         ws.id = idCounter++;
-        if (obj.type == "teacher"){
+        if (obj.type == TEACHER){
           ws.closeSession = false;
           teachers[ws.id]  = [ws, obj.session];
           console.log("Teacher Connection")
@@ -94,7 +98,7 @@ wss.on('connection', function connection(ws, req) {
           console.log("Teachers: " + teachers);
           console.log("Connections: " + JSON.stringify(teacher_conn));
         }
-        else if (obj.type == "center"){
+        else if (obj.type == CENTER){
           console.log("Center Connection");
           if (ws.id in teachers)
             throw "LOGIC ERROR: Center should not be in teachers dict";
@@ -109,6 +113,22 @@ wss.on('connection', function connection(ws, req) {
             console.log("No corresponding session");
             ws.close();
           }
+        }
+        else if (obj.type == ATTENDANCE){
+          console.log("Taking attendance");
+          if (ws.id in centers)
+            console.log("LOGIC ERROR: teacher should not be in centers dict");
+          // check if the session the center is trying to log into exists
+          if (obj.session in teacher_conn){
+            // send message to all centers to start taking input
+            teacher_conn[obj.session].forEach(function each(client){
+              centers[client][0].send(obj.type)
+            });            
+          }
+          else{
+            console.log("No corresponding session");
+            ws.close();
+          }          
         }
       }
       else{
