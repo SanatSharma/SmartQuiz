@@ -55,35 +55,44 @@ int quiz_start() {
 	return 1;
 }
 
-int quiz_poll() {
+int quiz_poll(int attendance) {
 
 	message = rf21x_createMessageBuffer();
 
 	if (rf21x_getMessage(rf21x, message))
 	{
-		int type = rf21x_getMessageType(message);
-		int keypadId = rf21x_getKeypadId(message);
-		int quizNumber = rf21x_getQuizNumber(message);
-		printf("Quiz Number: %d\n", quizNumber);
-		const char* data = rf21x_getData(message);
-		if (type == RF21X_MT_Teacher)
-		{
-			printf("Teacher: %s\n", data);
-		}
-		else if (type == RF21X_MT_Student)
-		{
-			if (quizNumber <= 0)
-			{
-				printf("Student %d for current question: %s\n", keypadId, data);
-				sql_send_data("RF123", keypadId, 1, data);
-
-			}
-			else
-			{
-				printf("Student %d for question %d: %s\n", keypadId, quizNumber, data);
+		if (attendance) {
+			int type = rf21x_getMessageType(message);
+			int keypadId = rf21x_getKeypadId(message);
+			const char* data = rf21x_getData(message);
+			if (type == RF21X_MT_Student) {
+				send_attendance(keypadId);
 			}
 		}
+		else {
+			int type = rf21x_getMessageType(message);
+			int keypadId = rf21x_getKeypadId(message);
+			int quizNumber = rf21x_getQuizNumber(message);
+			printf("Quiz Number: %d\n", quizNumber);
+			const char* data = rf21x_getData(message);
+			if (type == RF21X_MT_Teacher)
+			{
+				printf("Teacher: %s\n", data);
+			}
+			else if (type == RF21X_MT_Student)
+			{
+				if (quizNumber <= 0)
+				{
+					printf("Student %d for current question: %s\n", keypadId, data);
+					sql_send_data("RF123", keypadId, 1, data);
 
+				}
+				else
+				{
+					printf("Student %d for question %d: %s\n", keypadId, quizNumber, data);
+				}
+			}
+		}
 		unsigned char *buf = NULL;
 		int len = 0;
 		rf21x_getRawData(message, &buf, &len);
