@@ -11,7 +11,9 @@
 using namespace std;
 
 sql::Driver *driver;
+sql::Driver *driver2;
 sql::Connection *con;
+sql::Connection *con2;
 sql::PreparedStatement *prep_stmt;
 sql::PreparedStatement *prep_stmt2;
 sql::PreparedStatement *attendance_statement;
@@ -37,9 +39,9 @@ int sql_connect() {
 int attendance_init() {
 	try {
 		// This will all change when connecting to the actual database
-		driver = get_driver_instance();
-		con = driver->connect("tcp://127.0.0.1:", "root", "");
-		con->setSchema("test");
+		driver2 = get_driver_instance();
+		con2 = driver2->connect("tcp://127.0.0.1:", "root", "");
+		con2->setSchema("test");
 		::attendance_statement = con->prepareStatement("INSERT INTO students(remoteId) VALUES (?)");
 
 		std::cout << "Attendance database connected\n";
@@ -71,10 +73,25 @@ int sql_send_data(const char* rfid, int remoteId, int qid, const char* studentAn
 	}
 }
 
+int send_attendance(int remoteId) {
+	try {
+		attendance_statement->setInt(1, remoteId);
+		attendance_statement->execute();
+		return 1;
+	}
+	catch (sql::SQLException &e) {
+		std::cout << "# ERR: SQLException: Sending attendance data to database failed";
+		return 0;
+	}
+}
+
 int sql_close() {
 	try {
 		delete prep_stmt;
+		delete prep_stmt2;
+		delete attendance_statement;
 		delete con;
+		delete con2;
 		return 1;
 	}
 	catch (sql::SQLException &e) {
