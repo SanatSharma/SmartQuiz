@@ -8,7 +8,7 @@ char *buf;
 rf21x_Device rf21x = NULL;
 rf21x_Message message = NULL;
 
-int startUp() {
+int Quiz::startUp() {
 
 	int i = 0;
 	while (rf21x_getHidSerialNumber(i, buf, sizeof(buf)))
@@ -41,7 +41,7 @@ int startUp() {
 	return 1;
 }
 
-int quiz_start() {
+int Quiz::quiz_start() {
 
 	if (rf21x_startQuiz(rf21x, RF21X_QT_Single))
 	{
@@ -55,7 +55,7 @@ int quiz_start() {
 	return 1;
 }
 
-int quiz_poll(int attendance) {
+int Quiz::quiz_poll(int attendance) {
 
 	message = rf21x_createMessageBuffer();
 
@@ -107,7 +107,7 @@ int quiz_poll(int attendance) {
 	return 1;
 }
 
-int quiz_stop() {
+int Quiz::quiz_stop() {
 	rf21x_destoryMessageBuffer(message);
 	printf("Success Stop quiz and close device.\n");
 	if (rf21x_stopQuiz(rf21x)) {
@@ -120,7 +120,7 @@ int quiz_stop() {
 	return 1;
 }
 
-int session_end(){
+int Quiz::session_end(){
 	
 	if (rf21x_close(rf21x)) {
 		printf("Device Closed.\n");
