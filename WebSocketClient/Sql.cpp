@@ -19,10 +19,20 @@ sql::PreparedStatement *prep_stmt2;
 sql::PreparedStatement *attendance_statement;
 
 
-int sql_connect() {
-	try {
+int sql_connect() 
+{
+	try 
+	{
 		driver = get_driver_instance();
-		con = driver->connect("tcp://127.0.0.1:", "root", "");
+		try 
+		{
+			con = driver->connect("tcp://127.0.0.1:", "root", "");
+		}
+		catch (exception e)
+		{
+			std::cout << "Connection to database failed" << "\n";
+			return 0;
+		}
 		con->setSchema("test");
 		::prep_stmt = con->prepareStatement("INSERT INTO quizdata(rfid, remoteId, qid, studentAnswer) VALUES (?, ?, ?, ?)");
 		::prep_stmt2 = con->prepareStatement("DELETE FROM quizdata WHERE rfid=? and remoteId=? and qid=?");
