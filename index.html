@@ -62,16 +62,26 @@ var messages = [];
 function main() {
 	messagesPanel = document.getElementById("messagesPanel");
 	typedMessage = document.getElementById("typedMessage");
-
+	var QID = 0;
 	typedMessage.onkeydown = function(e) {
 		if (e.keyCode === 13 && !e.shiftKey) {
 			if (typedMessage.value.length) {
 				typedMessage.value = typedMessage.value.substring(0, 512);
 				addMessage(id, typedMessage.value, false);
-				ws.send(JSON.stringify({
-					session: "00001",
-					data: typedMessage.value
-				}));
+				if (typedMessage.value == "qid") {
+					QID = QID + 1;
+					ws.send(JSON.stringify({
+						session: "5",
+						data: typedMessage.value,
+						qid: QID
+					}));
+				}
+				else {
+					ws.send(JSON.stringify({
+						session: "5",
+						data: typedMessage.value
+					}));
+				}
 			}
 			typedMessage.value = "";
 			return false;
