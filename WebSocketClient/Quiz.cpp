@@ -84,8 +84,8 @@ int Quiz::quiz_poll(int attendance) {
 				if (quizNumber <= 0)
 				{
 					printf("Student %d for current question: %s\n", keypadId, data);
-					sql_send_data("RF123", keypadId, 1, data);
-
+					//sql_send_data("RF123", keypadId, 1, data);
+					Rest::postResponse(keypadId, data);
 				}
 				else
 				{
