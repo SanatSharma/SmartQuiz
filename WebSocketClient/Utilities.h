@@ -8,7 +8,11 @@ namespace Utilities
 {
 	using namespace web::http;
 	using namespace web::http::client;
+	using json = nlohmann::json;
+
 	Concurrency::task<std::string> HTTPStreamingAsync(uri* url);
 
 	std::wstring convertToWString(std::string str);
+
+	bool IsJson(std::string str);
 }

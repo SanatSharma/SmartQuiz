@@ -18,7 +18,7 @@ pplx::task<std::string> Utilities::HTTPStreamingAsync(web::uri* url)
 			}
 			catch (http_exception e)
 			{
-				std::cout << "Error extracting string. Return \" - 1 \"\n";
+				std::cout << "Error extracting string. Return \" - 1 \" Error: "<< e.what() << std::endl;
 				std::string a = std::string("-1");
 				return concurrency::create_task(
 					[a]()
@@ -51,4 +51,20 @@ std::wstring Utilities::convertToWString(std::string str)
 	std::wstring tempUrl;
 	tempUrl.assign(str.begin(), str.end());
 	return tempUrl;
+}
+
+bool Utilities::IsJson(std::string str)
+{
+	json j;
+	try
+	{
+		j = json::parse(str);
+		return true;
+	}
+	catch (json::exception e)
+	{
+		printf("Input is not json: %s\n", e.what());
+		return false;
+	}
+	return false;	
 }
