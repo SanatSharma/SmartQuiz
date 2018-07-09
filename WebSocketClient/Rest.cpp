@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Rest.h"
 
-std::string base_url ="http::/localhost:58081/api/";
+std::string base_url = "http://localhost:55082/api/";
 
 int Rest::getSession(std::string macAddr, std::string streamKey)
 {
@@ -19,22 +19,40 @@ int Rest::getSession(std::string macAddr, std::string streamKey)
 int Rest::getRRQ(int session)
 {
 	std::string rrqUrl = base_url + std::to_string(session) + "/getRRQ";
+	//std::string rrqUrl = base_url + std::to_string(SESSION) + "/getStream/0";
+	std::cout << "RRQ URL IS: " << rrqUrl << std::endl;
 
 	uri* url = new uri(Utilities::convertToWString(rrqUrl).c_str());
-	std::string val = Utilities::HTTPStreamingAsync(url).get();
+	std::string val = std::string(Utilities::HTTPStreamingAsync(url).get());
 
 	std::cout << val << std::endl;
 
+	if (!Utilities::IsJson(val))
+		throw std::exception("Call to server unsuccessful!");
 
-	json j = json::parse(val);
-	return int(j["RRQ_ID"]);
+	auto j = json::parse(val);
+
+	int rrq_id = int(j["RRQId"]);
+
+	if (rrq_id == 0)
+		throw std::exception("Call to server unsuccessful!");
+
+	return int(rrq_id);
 }
 
 //("api/{sessionId:int}/{rrqId:int}/saveRRQResponse/{QId:int}/{remoteId}/{response}")
-void Rest::postResponse(int remoteId, char * data)
+bool Rest::postResponse(int remoteId, const char * data)
 {
-	std::string posturl = base_url + std::to_string(SESSION) + "/saveRRQResponse/" + std::to_string(QID) + "/" + std::to_string(remoteId) + "/" + data;
+	std::string posturl = base_url + std::to_string(SESSION) + "/" + std::to_string(RRQ_ID)+  "/saveRRQResponse/" + std::to_string(QID) + "/" + std::to_string(remoteId) + "/" + data;
 
 	uri* url = new uri(Utilities::convertToWString(posturl).c_str());
 	std::string val = Utilities::HTTPStreamingAsync(url).get();
+
+	if (val.compare("true")==0)
+	{
+		std::cout << "Call successful\n";
+		return true;
+	}
+	else
+		return false;
 }
