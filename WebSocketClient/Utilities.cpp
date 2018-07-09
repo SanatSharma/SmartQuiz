@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "Utilities.h"
+#include <cpprest/json.h>
+
 
 // Creates an HTTP request and returns the response body.
 pplx::task<std::string> Utilities::HTTPStreamingAsync(web::uri* url)
@@ -7,7 +9,7 @@ pplx::task<std::string> Utilities::HTTPStreamingAsync(web::uri* url)
 	http_client client(*url);
 
 	// Make the request and asynchronously process the response. 
-	client.request(methods::GET).then([](http_response response)
+	return client.request(methods::GET).then([](http_response response)
 	{
 		if (response.status_code() == status_codes::OK)
 		{
@@ -38,12 +40,7 @@ pplx::task<std::string> Utilities::HTTPStreamingAsync(web::uri* url)
 			});
 		}
 	});
-	std::string a = std::string("-1");
-	return concurrency::create_task(
-		[a]()
-	{
-		return a;
-	});
+
 }
 
 std::wstring Utilities::convertToWString(std::string str)
