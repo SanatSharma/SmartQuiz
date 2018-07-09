@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Utilities.h"
 #include <nlohmann/json.hpp>
 #include "WebSocketClient.h"
@@ -14,5 +13,4 @@ namespace Rest
 
 	//("api/{sessionId:int}/{rrqId:int}/saveRRQResponse/{QId:int}/{remoteId}/{response}")
 	bool postResponse(int remoteId, const char* data);
-
 };

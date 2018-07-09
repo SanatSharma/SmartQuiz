@@ -59,6 +59,8 @@ textarea {
 <script>
 var messagesPanel, typedMessage, first = true, ws, id;
 var messages = [];
+const ATTENDANCE = "attendance";
+const STOPATTENDANCE = "stopattendance";
 function main() {
 	messagesPanel = document.getElementById("messagesPanel");
 	typedMessage = document.getElementById("typedMessage");
@@ -76,7 +78,19 @@ function main() {
 						qid: QID
 					}));
 				}
-				else {
+				else if (typedMessage.value == ATTENDANCE){
+					ws.send(JSON.stringify({
+					session: "00001",
+					type: typedMessage.value
+					}));
+				}
+				else if (typedMessage.value == STOPATTENDANCE){
+					ws.send(JSON.stringify({
+					session: "00001",
+					type: typedMessage.value
+					}));
+				}
+				else{
 					ws.send(JSON.stringify({
 						session: "5",
 						data: typedMessage.value
@@ -105,7 +119,7 @@ function main() {
 	}
 
 	console.log("Hostname: " + window.location.hostname + " Port: " + window.location.port);
-	ws = new WebSocket("ws://localhost:3000");
+	ws = new WebSocket("ws://127.0.0.1:3000/");
 
 	ws.onopen = function(e) {
 		ws.send(JSON.stringify({
@@ -151,8 +165,10 @@ function addMessage(id, message, left) {
 </script>
 </head>
 	<body onload="main();">
-		<div id="statusBar">Connecting...</div>
-		<div id="messagesPanel"></div>
+		
+		<div id="messagesPanel">
+			<div id="statusBar">Connecting...</div>
+		</div>
 		<textarea id="typedMessage" >Type your message here...</textarea>
 	</body>
 </html>
