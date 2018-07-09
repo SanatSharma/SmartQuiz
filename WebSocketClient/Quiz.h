@@ -1,6 +1,8 @@
 #pragma once
-#include <rf21x-api.h>
-#include <gsp-api.h>
+
+#include "Rest.h"
+#include "Sql.h"
+
 namespace Quiz
 {
 	int startUp();

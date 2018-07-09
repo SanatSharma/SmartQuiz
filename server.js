@@ -160,6 +160,21 @@ wss.on('connection', function connection(ws, req) {
               centers[client][0].close()
             });
           }
+          /*
+            for QID have the following structure
+            {
+              session: SESSION_ID,
+              data: "qid",
+              qid: QID
+            }
+          */
+          else if (d == "qid"){
+            teacher_conn[obj.session].forEach(function each(client){
+              centers[client][0].send(JSON.stringify({
+                  qid: obj.qid
+            }));
+            });
+          }
           else{
             teacher_conn[obj.session].forEach(function each(client){
               centers[client][0].send(d)

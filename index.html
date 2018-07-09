@@ -64,13 +64,21 @@ const STOPATTENDANCE = "stopattendance";
 function main() {
 	messagesPanel = document.getElementById("messagesPanel");
 	typedMessage = document.getElementById("typedMessage");
-	
+	var QID = 0;
 	typedMessage.onkeydown = function(e) {
 		if (e.keyCode === 13 && !e.shiftKey) {
 			if (typedMessage.value.length) {
 				typedMessage.value = typedMessage.value.substring(0, 512);
 				addMessage(id, typedMessage.value, false);
-				if (typedMessage.value == ATTENDANCE){
+				if (typedMessage.value == "qid") {
+					QID = QID + 1;
+					ws.send(JSON.stringify({
+						session: "5",
+						data: typedMessage.value,
+						qid: QID
+					}));
+				}
+				else if (typedMessage.value == ATTENDANCE){
 					ws.send(JSON.stringify({
 					session: "00001",
 					type: typedMessage.value
@@ -83,9 +91,8 @@ function main() {
 					}));
 				}
 				else{
-
 					ws.send(JSON.stringify({
-						session: "00001",
+						session: "5",
 						data: typedMessage.value
 					}));
 				}
@@ -116,7 +123,7 @@ function main() {
 
 	ws.onopen = function(e) {
 		ws.send(JSON.stringify({
-			session: "00001",
+			session: "5",
 			type: "teacher"
 		}));
 	}

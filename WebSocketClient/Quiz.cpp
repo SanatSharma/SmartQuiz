@@ -1,7 +1,9 @@
 #include "stdafx.h"
-#include "Quiz.h"
 #include <windows.h>
-#include "Sql.h"
+#include "Quiz.h"
+#include <rf21x-api.h>
+#include <gsp-api.h>
+
 #define RF21X_SLEEP(n) (Sleep(n))
 
 char *buf;
@@ -84,8 +86,11 @@ int Quiz::quiz_poll(int attendance) {
 				if (quizNumber <= 0)
 				{
 					printf("Student %d for current question: %s\n", keypadId, data);
-					sql_send_data("RF123", keypadId, 1, data);
-
+					//sql_send_data("RF123", keypadId, 1, data);
+					if (!Rest::postResponse(keypadId, data))
+					{
+						throw("Quiz data could not be sent to server!"); // SHOULD THIS BE CHANGED SO APPLICATION DOESN'T BREAK
+					}
 				}
 				else
 				{
