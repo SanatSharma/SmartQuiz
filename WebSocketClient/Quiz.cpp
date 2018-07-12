@@ -68,7 +68,8 @@ int Quiz::quiz_poll(int attendance) {
 			int keypadId = rf21x_getKeypadId(message);
 			const char* data = rf21x_getData(message);
 			if (type == RF21X_MT_Student) {
-				send_attendance(keypadId);
+				//send_attendance(keypadId);
+				// SEND ATTENDANCE TO SERVER
 			}
 		}
 		else {

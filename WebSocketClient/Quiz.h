@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Rest.h"
-#include "Sql.h"
 
 namespace Quiz
 {
