@@ -8,7 +8,7 @@ pplx::task<std::string> Utilities::HTTPStreamingAsync(web::uri* url)
 {
 	http_client client(*url);
 
-	// Make the request and asynchronously process the response. 
+	// Make the request and asynchronously process the response.
 	return client.request(methods::GET).then([](http_response response)
 	{
 		if (response.status_code() == status_codes::OK)
