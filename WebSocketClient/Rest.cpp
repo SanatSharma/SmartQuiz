@@ -3,19 +3,6 @@
 
 std::string base_url = "http://localhost:55082/api/";
 
-int Rest::getSession(std::string macAddr, std::string streamKey)
-{
-
-	std::string sessionUrl = base_url + "getSession/" + streamKey + "/" + macAddr;
-	
-	uri* url = new uri(Utilities::convertToWString(sessionUrl).c_str());
-	std::string val = Utilities::HTTPStreamingAsync(url).get();
-
-	std::cout << val << std::endl;
-
-	return std::stoi(val);
-}
-
 int Rest::getRRQ(int session)
 {
 	std::string rrqUrl = base_url + std::to_string(session) + "/getRRQ";
@@ -43,7 +30,7 @@ int Rest::getRRQ(int session)
 //("api/{sessionId:int}/{rrqId:int}/saveRRQResponse/{QId:int}/{remoteId}/{response}")
 bool Rest::postResponse(int remoteId, const char * data)
 {
-	std::string posturl = base_url + std::to_string(SESSION) + "/" + std::to_string(RRQ_ID)+  "/saveRRQResponse/" + std::to_string(QID) + "/" + std::to_string(remoteId) + "/" + data;
+	std::string posturl = base_url + std::to_string(SESSION) + "/" + std::to_string(RRQ_ID)+  "/saveRRQResponse/" + std::to_string(Q_ID) + "/" + std::to_string(remoteId) + "/" + data;
 
 	uri* url = new uri(Utilities::convertToWString(posturl).c_str());
 	std::string val = Utilities::HTTPStreamingAsync(url).get();
