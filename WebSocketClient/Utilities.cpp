@@ -40,7 +40,6 @@ pplx::task<std::string> Utilities::HTTPStreamingAsync(web::uri* url)
 			});
 		}
 	});
-
 }
 
 std::wstring Utilities::convertToWString(std::string str)
