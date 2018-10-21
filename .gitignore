@@ -1,3 +1,6 @@
 .vs
 node_modules
 
+
+Release
+WebSocketClient/Release/
