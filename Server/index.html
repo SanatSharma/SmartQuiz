@@ -90,6 +90,20 @@ function main() {
 					type: typedMessage.value
 					}));
 				}
+				else if (typedMessage.value == 'join') {
+					ws.send(JSON.stringify({
+						session: "5",
+						type: "2WayLive",
+						command: "join"
+					}));
+				}
+				else if (typedMessage.value == 'leave') {
+					ws.send(JSON.stringify({
+						session: "5",
+						type: "2WayLive",
+						command: "leave"
+					}));
+				}
 				else{
 					ws.send(JSON.stringify({
 						session: "5",
@@ -119,12 +133,13 @@ function main() {
 	}
 
 	console.log("Hostname: " + window.location.hostname + " Port: " + window.location.port);
-	ws = new WebSocket("ws://127.0.0.1:3000/");
+	//for (i=0;i<50;i++)
+		ws = new WebSocket("ws://127.0.0.1:3000/");
 
 	ws.onopen = function(e) {
 		ws.send(JSON.stringify({
 			session: "5",
-			type: "teacher"
+			type: "center"
 		}));
 	}
 
