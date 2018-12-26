@@ -53,6 +53,12 @@ Classroom:
             SessionID: <session id>
         }
         Add to websockets map, classrooms map, classroomWSids for that session connection
+
+        Upon adding classroom, send it a message so that it knows its connected
+        {
+            profile: Profile.RRQ,
+            action: Event.CONNECTION
+        }
         
 Teacher:
         Message:
@@ -290,6 +296,11 @@ function AddClassroom(ws, json) {
     var classroom = new Classroom(classroomWsID, conn);
     classrooms[classroomWsID] = classroom; // Add to classrooms dict
     websockets[classroomWsID] = ws; // Add to websockets dict
+    // Send confirmation to classroom
+    ws.send(JSON.stringify({
+        profile: Profile.RRQ,
+        action: Events.CONNECTION
+    }));
 }
 function SendMessage(teacherWsID, json) {
     var teacher = teachers[teacherWsID];
