@@ -165,6 +165,17 @@ enum Message {
     WSID = "wsID"
 }
 
+import * as fs from 'fs';
+import * as util from 'util';
+var log_file = fs.createWriteStream(__dirname + '/debug.log', {flags : 'w'});
+var log_stdout = process.stdout;
+
+console.log = function(d) { //
+    d = new Date().toString() + " | " +  d;
+  log_file.write(util.format(d) + '\n');
+  log_stdout.write(util.format(d) + '\n');
+};
+
 import * as WebSocket from 'ws';
 let connections: {[SessionID: number]: Connection} = {};
 let websockets: {[wsID:number]: WebSocket;} = {}; // websocket mapping
