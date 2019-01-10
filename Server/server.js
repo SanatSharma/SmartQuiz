@@ -193,6 +193,9 @@ wss.on('connection', function connection(ws) {
     ws.on("error", function (error) {
         console.error('WebSocket Error: ' + error);
     });
+    ws.on('pong', function () {
+        this.isAlive = true;
+    });
 });
 function assert(condition, message) {
     if (!condition) {
@@ -326,3 +329,12 @@ function SendMessage(teacherWsID, json) {
         }));
     }
 }
+function noop() { }
+var interval = setInterval(function ping() {
+    wss.clients.forEach(function each(ws) {
+        if (ws.isAlive === false)
+            return ws.terminate();
+        ws.isAlive = false;
+        ws.ping(noop);
+    });
+}, 60000);
